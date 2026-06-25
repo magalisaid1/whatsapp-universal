@@ -4,10 +4,39 @@ import urllib.parse
 import io 
 
 st.set_page_config(page_title="WhatsApp Masivo Universal", page_icon="🚀")
+
+# --- 🔒 SISTEMA DE SEGURIDAD ---
+# Aquí defines tu código secreto. ¡Cámbialo por el que tú quieras!
+CODIGO_SECRETO = "MAGUI2024"
+
+# Memoria para recordar si el usuario ya puso la clave
+if 'autenticado' not in st.session_state:
+    st.session_state.autenticado = False
+
+# Si no está autenticado, le mostramos la puerta de seguridad
+if not st.session_state.autenticado:
+    st.title("🔒 Acceso Restringido")
+    st.write("Este software es privado. Por favor, ingresa el código de acceso.")
+    
+    # Caja para poner la contraseña (los caracteres se ocultan con puntitos)
+    codigo_ingresado = st.text_input("Código de acceso:", type="password")
+    
+    if st.button("Entrar"):
+        if codigo_ingresado == CODIGO_SECRETO:
+            st.session_state.autenticado = True
+            st.rerun() # Recarga la página para dejarlo pasar
+        else:
+            st.error("❌ Código incorrecto. Por favor, solicítale acceso a la creadora del software.")
+            
+    # st.stop() hace que el programa se detenga aquí y no lea el resto del código
+    st.stop()
+
+# --- 🚀 A PARTIR DE AQUÍ, EL SOFTWARE REAL (Solo entran si tienen la clave) ---
+
 st.title("🚀 Envíos Masivos por WhatsApp")
 st.write("Sube tu lista, escribe tu mensaje personalizado y envía.")
 
-# 1. LA MEMORIA
+# 1. LA MEMORIA DE DATOS
 if 'datos' not in st.session_state:
     st.session_state.datos = None
 
@@ -16,7 +45,6 @@ if st.session_state.datos is None:
     archivo_subido = st.file_uploader("Paso 1: Sube tu archivo Excel", type=["xlsx"])
     if archivo_subido is not None:
         df = pd.read_excel(archivo_subido)
-        # Nos aseguramos de que existan las columnas básicas
         if 'Estado' not in df.columns:
             df['Estado'] = ''
         if 'Enviar' not in df.columns:
@@ -32,15 +60,12 @@ if st.session_state.datos is not None:
     st.write("### 📋 1. Tus Datos:")
     st.dataframe(df)
     
-    # --- LA MAGIA UNIVERSAL: EL CREADOR DE MENSAJES ---
     st.write("### ✍️ 2. Escribe tu Mensaje:")
     
-    # Le mostramos al usuario qué columnas tiene su Excel
     columnas = df.columns.tolist()
     etiquetas = ", ".join([f"**{{{col}}}**" for col in columnas])
-    st.info(f"💡 **Truco:** Puedes usar estas etiquetas en tu mensaje para que se personalice automáticamente: {etiquetas}")
+    st.info(f"💡 **Truco:** Puedes usar estas etiquetas en tu mensaje: {etiquetas}")
     
-    # Caja de texto para que el usuario escriba lo que quiera
     mensaje_base = st.text_area(
         "Escribe tu mensaje aquí:", 
         "Hola {Nombre}, este es un mensaje de prueba."
@@ -56,14 +81,12 @@ if st.session_state.datos is not None:
         if enviar == 'si' and estado != 'enviado':
             pendientes += 1
             
-            # Intentamos obtener el teléfono y el nombre (si existen)
             telefono = str(row.get('Telefono', ''))
             nombre_mostrar = str(row.get('Nombre', f'Fila {index+1}'))
             
             if not telefono.startswith('+'):
                 telefono = '+' + telefono
                 
-            # REEMPLAZO DINÁMICO: Cambiamos las {Etiquetas} por los datos reales
             mensaje_final = mensaje_base
             for col in columnas:
                 etiqueta_buscar = "{" + col + "}"
@@ -105,7 +128,6 @@ if st.session_state.datos is not None:
         )
         
     with col_reiniciar:
-        # Botón para borrar la memoria y subir un Excel diferente
         if st.button("🔄 Subir una lista nueva"):
             st.session_state.datos = None
             st.rerun()

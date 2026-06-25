@@ -2,45 +2,82 @@ import streamlit as st
 import pandas as pd
 import urllib.parse
 import io 
+import random
+import smtplib
+from email.mime.text import MIMEText
 
 st.set_page_config(page_title="WhatsApp Masivo Universal", page_icon="🚀")
 
-# --- 🔒 SISTEMA DE SEGURIDAD ---
-# Aquí defines tu código secreto. ¡Cámbialo por el que tú quieras!
-CODIGO_SECRETO = "MAGUI2024"
+# --- 🔒 SISTEMA DE SEGURIDAD CON EMAIL ---
 
-# Memoria para recordar si el usuario ya puso la clave
+# Memoria para la sesión
 if 'autenticado' not in st.session_state:
     st.session_state.autenticado = False
+if 'codigo_generado' not in st.session_state:
+    st.session_state.codigo_generado = None
 
-# Si no está autenticado, le mostramos la puerta de seguridad
 if not st.session_state.autenticado:
     st.title("🔒 Acceso Restringido")
-    st.write("Este software es privado. Por favor, ingresa el código de acceso.")
+    st.write("Para usar este software, necesitas solicitar un código de acceso.")
     
-    # Caja para poner la contraseña (los caracteres se ocultan con puntitos)
-    codigo_ingresado = st.text_input("Código de acceso:", type="password")
+    # 1. El cliente pone su nombre
+    usuario = st.text_input("Tu Nombre o Empresa:")
     
-    if st.button("Entrar"):
-        if codigo_ingresado == CODIGO_SECRETO:
-            st.session_state.autenticado = True
-            st.rerun() # Recarga la página para dejarlo pasar
-        else:
-            st.error("❌ Código incorrecto. Por favor, solicítale acceso a la creadora del software.")
+    # 2. Botón para pedir el código
+    if st.button("📩 1. Solicitar Código a Magali"):
+        if usuario:
+            # Generamos un código aleatorio de 4 dígitos
+            codigo = str(random.randint(1000, 9999))
+            st.session_state.codigo_generado = codigo
             
-    # st.stop() hace que el programa se detenga aquí y no lea el resto del código
-    st.stop()
+            try:
+                # Sacamos las credenciales de la caja fuerte de Streamlit
+                remitente = st.secrets["EMAIL_SENDER"]
+                password = st.secrets["EMAIL_PASSWORD"]
+                destinatario = "magalisaid@hotmail.com" # TU CORREO
+                
+                # Armamos el correo
+                mensaje_email = f"Hola Magali,\n\nEl usuario '{usuario}' quiere usar tu software.\n\nEl código generado para esta sesión es: {codigo}\n\nPásale este código por WhatsApp o chat para que pueda entrar."
+                msg = MIMEText(mensaje_email)
+                msg['Subject'] = f"🔑 Nuevo acceso solicitado por {usuario}"
+                msg['From'] = remitente
+                msg['To'] = destinatario
+                
+                # Nos conectamos a Gmail y enviamos el correo
+                server = smtplib.SMTP('smtp.gmail.com', 587)
+                server.starttls()
+                server.login(remitente, password)
+                server.send_message(msg)
+                server.quit()
+                
+                st.success("✅ ¡Solicitud enviada! Magali recibirá tu código. Por favor, NO CIERRES esta ventana y espera a que te lo pase.")
+            except Exception as e:
+                st.error("❌ Hubo un error al enviar el correo. Revisa los Secrets de Streamlit.")
+        else:
+            st.warning("⚠️ Por favor, ingresa tu nombre primero.")
+            
+    # 3. Caja para poner el código que tú le pases
+    if st.session_state.codigo_generado:
+        st.write("---")
+        codigo_ingresado = st.text_input("🔑 2. Ingresa el código que te pasó Magali:", type="password")
+        
+        if st.button("Entrar al Software"):
+            if codigo_ingresado == st.session_state.codigo_generado:
+                st.session_state.autenticado = True
+                st.rerun()
+            else:
+                st.error("❌ Código incorrecto.")
+                
+    st.stop() # Detiene la página aquí si no están autenticados
 
-# --- 🚀 A PARTIR DE AQUÍ, EL SOFTWARE REAL (Solo entran si tienen la clave) ---
+# --- 🚀 A PARTIR DE AQUÍ, EL SOFTWARE REAL ---
 
 st.title("🚀 Envíos Masivos por WhatsApp")
 st.write("Sube tu lista, escribe tu mensaje personalizado y envía.")
 
-# 1. LA MEMORIA DE DATOS
 if 'datos' not in st.session_state:
     st.session_state.datos = None
 
-# 2. SUBIR ARCHIVO
 if st.session_state.datos is None:
     archivo_subido = st.file_uploader("Paso 1: Sube tu archivo Excel", type=["xlsx"])
     if archivo_subido is not None:
@@ -53,7 +90,6 @@ if st.session_state.datos is None:
         st.session_state.datos = df
         st.rerun()
 
-# 3. PANEL DE CONTROL UNIVERSAL
 if st.session_state.datos is not None:
     df = st.session_state.datos 
     
@@ -61,18 +97,13 @@ if st.session_state.datos is not None:
     st.dataframe(df)
     
     st.write("### ✍️ 2. Escribe tu Mensaje:")
-    
     columnas = df.columns.tolist()
     etiquetas = ", ".join([f"**{{{col}}}**" for col in columnas])
     st.info(f"💡 **Truco:** Puedes usar estas etiquetas en tu mensaje: {etiquetas}")
     
-    mensaje_base = st.text_area(
-        "Escribe tu mensaje aquí:", 
-        "Hola {Nombre}, este es un mensaje de prueba."
-    )
+    mensaje_base = st.text_area("Escribe tu mensaje aquí:", "Hola {Nombre}, este es un mensaje de prueba.")
     
     st.write("### 🚀 3. Pendientes de envío:")
-    
     pendientes = 0
     for index, row in df.iterrows():
         enviar = str(row.get('Enviar', '')).strip().lower()
@@ -80,7 +111,6 @@ if st.session_state.datos is not None:
         
         if enviar == 'si' and estado != 'enviado':
             pendientes += 1
-            
             telefono = str(row.get('Telefono', ''))
             nombre_mostrar = str(row.get('Nombre', f'Fila {index+1}'))
             
@@ -97,10 +127,8 @@ if st.session_state.datos is not None:
             link = f"https://web.whatsapp.com/send?phone={telefono}&text={mensaje_url}"
             
             col1, col2 = st.columns([1, 1])
-            
             with col1:
                 st.link_button(f"💬 Abrir chat de {nombre_mostrar}", link)
-            
             with col2:
                 if st.button(f"✅ Marcar como Enviado", key=f"btn_{index}"):
                     st.session_state.datos.at[index, 'Estado'] = 'Enviado'
@@ -109,23 +137,15 @@ if st.session_state.datos is not None:
     if pendientes == 0:
         st.success("¡No hay mensajes pendientes!")
 
-    # 4. DESCARGAR Y REINICIAR
     st.write("---")
     st.write("### 💾 4. Finalizar:")
-    
     col_descarga, col_reiniciar = st.columns([1, 1])
     
     with col_descarga:
         buffer = io.BytesIO()
         with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
             st.session_state.datos.to_excel(writer, index=False)
-        
-        st.download_button(
-            label="📥 Descargar Excel Actualizado",
-            data=buffer.getvalue(),
-            file_name="lista_actualizada.xlsx",
-            mime="application/vnd.ms-excel"
-        )
+        st.download_button(label="📥 Descargar Excel Actualizado", data=buffer.getvalue(), file_name="lista_actualizada.xlsx", mime="application/vnd.ms-excel")
         
     with col_reiniciar:
         if st.button("🔄 Subir una lista nueva"):

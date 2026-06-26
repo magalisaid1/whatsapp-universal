@@ -146,34 +146,3 @@ if st.session_state.datos is not None:
     with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
         st.session_state.datos.to_excel(writer, index=False)
     st.download_button(label="📥 Descargar Excel Actualizado", data=buffer.getvalue(), file_name="lista_actualizada.xlsx", mime="application/vnd.ms-excel")
-
-# Diseño personalizado de la página (CSS)
-st.markdown("""
-    <style>
-    /* 1. Ocultar marcas de agua de Streamlit */
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {visibility: hidden;}
-
-    /* 2. Cambiar el color de fondo de la aplicación */
-    .stApp {
-        background-color: #F0F8FF; /* Un tono azul/gris muy clarito y elegante */
-    }
-
-    /* 3. Darle estilo de WhatsApp a los botones */
-    div.stButton > button:first-child {
-        background-color: #25D366; /* Verde oficial de WhatsApp */
-        color: white; /* Letras blancas */
-        border-radius: 10px; /* Bordes redondeados */
-        border: none; /* Sin borde negro */
-        font-weight: bold; /* Letras en negrita */
-        padding: 10px 20px; /* Tamaño del botón */
-    }
-    
-    /* 4. Efecto cuando pasas el mouse por encima del botón */
-    div.stButton > button:first-child:hover {
-        background-color: #128C7E; /* Un verde más oscuro */
-        color: white;
-    }
-    </style>
-    """, unsafe_allow_html=True)

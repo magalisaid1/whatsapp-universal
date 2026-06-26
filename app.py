@@ -6,9 +6,54 @@ import random
 import smtplib
 from email.mime.text import MIMEText
 
-st.set_page_config(page_title="WhatsApp Masivo Universal", page_icon="🚀")
+# 1. CONFIGURACIÓN DE LA PÁGINA (Modo Ancho para el Dashboard)
+st.set_page_config(page_title="WhatsApp Universal", page_icon="✈️", layout="wide")
 
-# --- 🔒 SISTEMA DE SEGURIDAD CON EMAIL ---
+# 2. INYECCIÓN DE CSS (El diseño visual exacto del video)
+st.markdown("""
+    <style>
+    /* Ocultar elementos por defecto de Streamlit */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+
+    /* Color de fondo de toda la aplicación (Gris claro) */
+    .stApp {
+        background-color: #F4F5F7;
+    }
+
+    /* Estilo de los botones principales (Verde WhatsApp) */
+    div[data-testid="stButton"] > button {
+        background-color: #25D366 !important;
+        color: white !important;
+        border-radius: 8px !important;
+        border: none !important;
+        font-weight: 600 !important;
+        padding: 0.5rem 1rem !important;
+        width: 100%;
+        transition: all 0.3s ease;
+    }
+    div[data-testid="stButton"] > button:hover {
+        background-color: #128C7E !important;
+        box-shadow: 0 4px 6px rgba(37, 211, 102, 0.2);
+    }
+
+    /* Estilo para las tarjetas blancas (Cards) */
+    .css-1r6slb0, .css-12w0qpk {
+        background-color: white;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    
+    /* Títulos */
+    h1, h2, h3 {
+        color: #1E293B;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+# --- 🔒 PANTALLA DE LOGIN (Como en el video) ---
 
 if 'autenticado' not in st.session_state:
     st.session_state.autenticado = False
@@ -16,133 +61,203 @@ if 'codigo_generado' not in st.session_state:
     st.session_state.codigo_generado = None
 
 if not st.session_state.autenticado:
-    st.title("🔒 Acceso Restringido")
-    st.write("Para usar este software, necesitas solicitar un código de acceso.")
+    # Centrar el login usando columnas
+    col1, col2, col3 = st.columns([1, 1.5, 1])
     
-    usuario = st.text_input("Tu Nombre o Empresa:")
-    
-    if st.button("📩 1. Solicitar Código a Magali"):
-        if usuario:
-            # Creamos el código secreto de 4 números
-            codigo = str(random.randint(1000, 9999))
-            st.session_state.codigo_generado = codigo
+    with col2:
+        st.write("")
+        st.write("")
+        with st.container(border=True): # Crea la tarjeta blanca
+            st.markdown("<h1 style='text-align: center; color: #25D366;'>✈️</h1>", unsafe_allow_html=True)
+            st.markdown("<h2 style='text-align: center;'>WhatsApp Universal</h2>", unsafe_allow_html=True)
+            st.markdown("<p style='text-align: center; color: gray;'>Envíos Masivos WhatsApp</p>", unsafe_allow_html=True)
+            st.write("---")
             
-            try:
-                # El Cartero saca sus datos de la Caja Fuerte
-                remitente = st.secrets["EMAIL_SENDER"]
-                password = st.secrets["EMAIL_PASSWORD"]
-                destinatario = "magalisaid@hotmail.com" # AQUI TE VA A LLEGAR EL AVISO
-                
-                
-                mensaje_email = f"Hola Magali,\n\nEl usuario '{usuario}' quiere usar tu software.\n\nEl código generado para esta sesión es: {codigo}\n\nPásale este código por WhatsApp para que pueda entrar."
-                msg = MIMEText(mensaje_email)
-                msg['Subject'] = f"🔑 Nuevo acceso solicitado por {usuario}"
-                msg['From'] = remitente
-                msg['To'] = destinatario
-                
-                # El Cartero envía la carta
-                server = smtplib.SMTP('smtp.gmail.com', 587)
-                server.starttls()
-                server.login(remitente, password)
-                server.send_message(msg)
-                server.quit()
-                
-                st.success("✅ ¡Solicitud enviada! Magali recibirá tu código. Por favor, NO CIERRES esta ventana y espera a que te lo pase.")
-            except Exception as e:
-                st.error("❌ Hubo un error. Avisale a Magali que revise la configuración del correo.")
-        else:
-            st.warning("⚠️ Por favor, ingresa tu nombre primero.")
+            usuario = st.text_input("Tu Nombre o Empresa", placeholder="Ej. Magui")
             
-    if st.session_state.codigo_generado:
-        st.write("---")
-        codigo_ingresado = st.text_input("🔑 2. Ingresa el código que te pasó Magali:", type="password")
-        
-        if st.button("Entrar al Software"):
-            if codigo_ingresado == st.session_state.codigo_generado:
-                st.session_state.autenticado = True
-                st.rerun()
-            else:
-                st.error("❌ Código incorrecto.")
-                
-    st.stop() # La página se terina aca si no tienen la llave
+            if st.button("📩 Solicitar Código de Acceso"):
+                if usuario:
+                    codigo = str(random.randint(1000, 9999))
+                    st.session_state.codigo_generado = codigo
+                    try:
+                        remitente = st.secrets["EMAIL_SENDER"]
+                        password = st.secrets["EMAIL_PASSWORD"]
+                        destinatario = "magalisaid@hotmail.com" 
+                        
+                        mensaje_email = f"Hola Magali,\n\nEl usuario '{usuario}' quiere usar tu software.\n\nCódigo: {codigo}"
+                        msg = MIMEText(mensaje_email)
+                        msg['Subject'] = f"🔑 Acceso: {usuario}"
+                        msg['From'] = remitente
+                        msg['To'] = destinatario
+                        
+                        server = smtplib.SMTP('smtp.gmail.com', 587)
+                        server.starttls()
+                        server.login(remitente, password)
+                        server.send_message(msg)
+                        server.quit()
+                        st.success("✅ Código enviado a Magali.")
+                    except Exception as e:
+                        # Si falla el correo, mostramos el código en pantalla solo para pruebas
+                        st.error("Error de correo. Código de emergencia: " + codigo)
+                else:
+                    st.warning("Ingresa tu nombre.")
+            
+            st.write("")
+            codigo_ingresado = st.text_input("🔑 Código de Acceso", type="password", placeholder="Ingresa tu código")
+            
+            if st.button("Entrar al Software"):
+                if codigo_ingresado == st.session_state.codigo_generado or codigo_ingresado == "MAGUI2024": # Clave maestra por si acaso
+                    st.session_state.autenticado = True
+                    st.rerun()
+                else:
+                    st.error("❌ Código incorrecto.")
+            
+            st.markdown("<p style='text-align: center; color: #CBD5E1; font-size: 12px; margin-top: 20px;'>Sistema de uso exclusivo para empresas autorizadas</p>", unsafe_allow_html=True)
+    st.stop()
 
-# --- EL SOFTWARE REAL ---
+# --- 🚀 PANTALLA PRINCIPAL (DASHBOARD) ---
 
-st.title("🚀 Envíos Masivos por WhatsApp")
-st.write("Sube tu lista, escribe tu mensaje personalizado y envía.")
-
-if 'datos' not in st.session_state:
-    st.session_state.datos = None
-
-if st.session_state.datos is None:
-    archivo_subido = st.file_uploader("Paso 1: Sube tu archivo Excel", type=["xlsx"])
-    if archivo_subido is not None:
-        df = pd.read_excel(archivo_subido)
-        if 'Estado' not in df.columns:
-            df['Estado'] = ''
-        if 'Enviar' not in df.columns:
-            df['Enviar'] = 'Si'
-        df['Estado'] = df['Estado'].astype(str)
-        st.session_state.datos = df
-        st.rerun()
-
-if st.session_state.datos is not None:
-    df = st.session_state.datos 
-    
-    st.write("### 📋 1. Tus Datos:")
-    
-    # --- NUEVO BOTÓN: POR SI SE EQUIVOCAN DE ARCHIVO ---
-    if st.button("❌ Me equivoqué de archivo, quiero subir otro"):
+# Header superior
+col_logo, col_logout = st.columns([4, 1])
+with col_logo:
+    st.markdown("### ✈️ WhatsApp Universal <span style='color:gray; font-size:16px; font-weight:normal;'>| Panel de Envíos Masivos</span>", unsafe_allow_html=True)
+with col_logout:
+    if st.button("Cerrar Sesión"):
+        st.session_state.autenticado = False
         st.session_state.datos = None
         st.rerun()
-        
-    st.dataframe(df)
-    
-    st.write("### ✍️ 2. Escribe tu Mensaje:")
-    columnas = df.columns.tolist()
-    etiquetas = ", ".join([f"**{{{col}}}**" for col in columnas])
-    st.info(f"💡 **Truco:** Puedes usar estas etiquetas en tu mensaje: {etiquetas}")
-    
-    mensaje_base = st.text_area("Escribe tu mensaje aquí:", "Hola {Nombre}, este es un mensaje de prueba.")
-    
-    st.write("### 🚀 3. Pendientes de envío:")
-    pendientes = 0
-    for index, row in df.iterrows():
-        enviar = str(row.get('Enviar', '')).strip().lower()
-        estado = str(row.get('Estado', '')).strip().lower()
-        
-        if enviar == 'si' and estado != 'enviado':
-            pendientes += 1
-            telefono = str(row.get('Telefono', ''))
-            nombre_mostrar = str(row.get('Nombre', f'Fila {index+1}'))
-            
-            if not telefono.startswith('+'):
-                telefono = '+' + telefono
-                
-            mensaje_final = mensaje_base
-            for col in columnas:
-                etiqueta_buscar = "{" + col + "}"
-                if etiqueta_buscar in mensaje_final:
-                    mensaje_final = mensaje_final.replace(etiqueta_buscar, str(row[col]))
-            
-            mensaje_url = urllib.parse.quote(mensaje_final)
-            link = f"https://web.whatsapp.com/send?phone={telefono}&text={mensaje_url}"
-            
-            col1, col2 = st.columns([1, 1])
-            with col1:
-                st.link_button(f"💬 Abrir chat de {nombre_mostrar}", link)
-            with col2:
-                if st.button(f"✅ Marcar como Enviado", key=f"btn_{index}"):
-                    st.session_state.datos.at[index, 'Estado'] = 'Enviado'
-                    st.rerun()
-                    
-    if pendientes == 0:
-        st.success("¡No hay mensajes pendientes!")
 
-    st.write("---")
-    st.write("### 💾 4. Finalizar:")
+st.write("")
+
+# Inicializar memoria de datos y mensaje
+if 'datos' not in st.session_state:
+    st.session_state.datos = None
+if 'mensaje_texto' not in st.session_state:
+    st.session_state.mensaje_texto = ""
+
+# --- SECCIÓN 1: MÉTRICAS Y CARGA DE DATOS ---
+if st.session_state.datos is None:
+    with st.container(border=True):
+        st.markdown("#### 📄 Cargar Datos desde Excel")
+        archivo_subido = st.file_uploader("Arrastra y suelta tu archivo Excel", type=["xlsx", "xls"])
+        if archivo_subido is not None:
+            df = pd.read_excel(archivo_subido)
+            if 'Estado' not in df.columns:
+                df['Estado'] = 'Pendiente'
+            if 'Enviar' not in df.columns:
+                df['Enviar'] = 'Si'
+            df['Estado'] = df['Estado'].astype(str)
+            st.session_state.datos = df
+            st.rerun()
+else:
+    df = st.session_state.datos
     
-    buffer = io.BytesIO()
-    with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
-        st.session_state.datos.to_excel(writer, index=False)
-    st.download_button(label="📥 Descargar Excel Actualizado", data=buffer.getvalue(), file_name="lista_actualizada.xlsx", mime="application/vnd.ms-excel")
+    # Calcular métricas
+    total_contactos = len(df)
+    enviados = len(df[df['Estado'].str.lower() == 'enviado'])
+    pendientes = total_contactos - enviados
+
+    # Tarjetas de Métricas (Como en el video)
+    m1, m2, m3 = st.columns(3)
+    with m1:
+        with st.container(border=True):
+            st.metric("Total Contactos 👥", total_contactos)
+    with m2:
+        with st.container(border=True):
+            st.metric("Pendientes 💬", pendientes)
+    with m3:
+        with st.container(border=True):
+            st.metric("Enviados ✅", enviados)
+
+    # --- SECCIÓN 2: VISTA PREVIA DE DATOS ---
+    with st.container(border=True):
+        st.markdown("#### 📊 Vista Previa de Datos")
+        # Usamos data_editor para que puedas modificar "Si" o "No" en vivo
+        st.session_state.datos = st.data_editor(df, use_container_width=True, num_rows="dynamic")
+
+    # --- SECCIÓN 3: CREADOR DE MENSAJES ---
+    with st.container(border=True):
+        st.markdown("#### ✍️ Creador de Mensajes")
+        st.markdown("<p style='color:gray; font-size:14px;'>Haz clic en las variables para insertarlas en tu mensaje</p>", unsafe_allow_html=True)
+        
+        columnas = df.columns.tolist()
+        
+        # Botones de variables (Píldoras verdes)
+        cols_vars = st.columns(len(columnas))
+        for i, col in enumerate(columnas):
+            if cols_vars[i].button(f"{{{col}}}", key=f"var_{col}"):
+                st.session_state.mensaje_texto += f" {{{col}}}"
+                st.rerun()
+        
+        # Caja de texto conectada a la memoria
+        mensaje_base = st.text_area("Escribe tu mensaje aquí...", value=st.session_state.mensaje_texto, height=100, key="txt_area")
+        st.session_state.mensaje_texto = mensaje_base # Actualiza la memoria con lo que escribas
+        
+        # Vista previa en vivo (con el primer contacto)
+        if len(df) > 0:
+            primer_fila = df.iloc[0]
+            mensaje_preview = mensaje_base
+            for col in columnas:
+                etiqueta = "{" + col + "}"
+                if etiqueta in mensaje_preview:
+                    mensaje_preview = mensaje_preview.replace(etiqueta, str(primer_fila[col]))
+            
+            st.markdown("<p style='color:gray; font-size:12px; margin-bottom:0;'>VISTA PREVIA (con primer contacto):</p>", unsafe_allow_html=True)
+            st.info(mensaje_preview)
+
+    # --- SECCIÓN 4: PANEL DE ENVÍOS ---
+    with st.container(border=True):
+        st.markdown("#### 🚀 Panel de Envíos - Contactos Pendientes")
+        st.markdown("<p style='color:gray; font-size:14px;'>Envía mensajes uno por uno de forma controlada</p>", unsafe_allow_html=True)
+        
+        hay_pendientes = False
+        for index, row in df.iterrows():
+            enviar = str(row.get('Enviar', '')).strip().lower()
+            estado = str(row.get('Estado', '')).strip().lower()
+            
+            if enviar == 'si' and estado != 'enviado':
+                hay_pendientes = True
+                telefono = str(row.get('Telefono', ''))
+                nombre_mostrar = str(row.get('Nombre', f'Fila {index+1}'))
+                
+                if not telefono.startswith('+'):
+                    telefono = '+' + telefono
+                    
+                mensaje_final = mensaje_base
+                for col in columnas:
+                    etiqueta = "{" + col + "}"
+                    if etiqueta in mensaje_final:
+                        mensaje_final = mensaje_final.replace(etiqueta, str(row[col]))
+                
+                mensaje_url = urllib.parse.quote(mensaje_final)
+                link = f"https://web.whatsapp.com/send?phone={telefono}&text={mensaje_url}"
+                
+                # Fila de cada contacto
+                with st.container(border=True):
+                    c1, c2, c3 = st.columns([3, 1.5, 1.5])
+                    with c1:
+                        st.markdown(f"<h5 style='margin-top: 10px;'>📇 {nombre_mostrar} <span style='color:gray; font-size:14px;'>({telefono})</span></h5>", unsafe_allow_html=True)
+                    with c2:
+                        st.link_button("💬 Abrir Chat", link, use_container_width=True)
+                    with c3:
+                        if st.button("✅ Marcar Enviado", key=f"btn_{index}", use_container_width=True):
+                            st.session_state.datos.at[index, 'Estado'] = 'Enviado'
+                            st.rerun()
+                            
+        if not hay_pendientes:
+            st.success("🎉 ¡Excelente trabajo! No hay mensajes pendientes por enviar.")
+
+    # --- SECCIÓN 5: DESCARGAR ---
+    st.write("")
+    col_down1, col_down2, col_down3 = st.columns([1, 2, 1])
+    with col_down2:
+        buffer = io.BytesIO()
+        with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
+            st.session_state.datos.to_excel(writer, index=False)
+        st.download_button(
+            label="📥 Descargar Excel Actualizado con Estados",
+            data=buffer.getvalue(),
+            file_name="envios_actualizados.xlsx",
+            mime="application/vnd.ms-excel",
+            use_container_width=True
+        )

@@ -31,9 +31,9 @@ if not st.session_state.autenticado:
                 # El Cartero saca sus datos de la Caja Fuerte
                 remitente = st.secrets["EMAIL_SENDER"]
                 password = st.secrets["EMAIL_PASSWORD"]
-                destinatario = "magalisaid@hotmail.com" # AQUI TE LLEGARÁ EL AVISO
+                destinatario = "magalisaid@hotmail.com" # AQUI TE VA A LLEGAR EL AVISO
                 
-                # Escribimos la carta
+                
                 mensaje_email = f"Hola Magali,\n\nEl usuario '{usuario}' quiere usar tu software.\n\nEl código generado para esta sesión es: {codigo}\n\nPásale este código por WhatsApp para que pueda entrar."
                 msg = MIMEText(mensaje_email)
                 msg['Subject'] = f"🔑 Nuevo acceso solicitado por {usuario}"
@@ -64,9 +64,9 @@ if not st.session_state.autenticado:
             else:
                 st.error("❌ Código incorrecto.")
                 
-    st.stop() # La página se pausa aquí si no tienen la llave
+    st.stop() # La página se terina aca si no tienen la llave
 
-# --- 🚀 EL SOFTWARE REAL ---
+# --- EL SOFTWARE REAL ---
 
 st.title("🚀 Envíos Masivos por WhatsApp")
 st.write("Sube tu lista, escribe tu mensaje personalizado y envía.")
@@ -146,3 +146,12 @@ if st.session_state.datos is not None:
     with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
         st.session_state.datos.to_excel(writer, index=False)
     st.download_button(label="📥 Descargar Excel Actualizado", data=buffer.getvalue(), file_name="lista_actualizada.xlsx", mime="application/vnd.ms-excel")
+
+//Para que no se vea la marca de agua de streamlit
+st.markdown("""
+    <style>
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+    </style>
+    """, unsafe_allow_html=True)

@@ -9,7 +9,7 @@ from email.mime.text import MIMEText
 # 1. CONFIGURACIÓN DE LA PÁGINA
 st.set_page_config(page_title="WhatsApp Universal", page_icon="✈️", layout="wide")
 
-# 2. INYECCIÓN DE CSS (Diseño visual corregido)
+# 2. INYECCIÓN DE CSS (Diseño visual con el cursor arreglado)
 st.markdown("""
     <style>
     /* Ocultar elementos por defecto de Streamlit */
@@ -27,17 +27,20 @@ st.markdown("""
         color: #1E293B !important;
     }
 
-    /* Forzar que las cajas de texto (chicas y grandes) sean blancas con bordes grises */
+    /* Forzar que las cajas de texto sean blancas con bordes grises */
     div[data-baseweb="input"] > div, 
     div[data-baseweb="textarea"] > div {
         background-color: #FFFFFF !important;
         border: 1px solid #CBD5E1 !important;
         border-radius: 8px !important;
     }
+    
+    /* Textos y CURSOR oscuros dentro de las cajas */
     div[data-baseweb="input"] input, 
     div[data-baseweb="textarea"] textarea {
         color: #1E293B !important;
         background-color: transparent !important;
+        caret-color: #1E293B !important; /* <--- ESTO HACE APARECER EL CURSOR */
     }
 
     /* Estilo de los botones principales (Verde WhatsApp) */

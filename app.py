@@ -147,11 +147,4 @@ if st.session_state.datos is not None:
         st.session_state.datos.to_excel(writer, index=False)
     st.download_button(label="📥 Descargar Excel Actualizado", data=buffer.getvalue(), file_name="lista_actualizada.xlsx", mime="application/vnd.ms-excel")
 
-# Para que no se vea la marca de agua de streamlit
-st.markdown("""
-    <style>
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {visibility: hidden;}
-    </style>
-    """, unsafe_allow_html=True)
+

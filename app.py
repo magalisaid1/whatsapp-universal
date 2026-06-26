@@ -9,25 +9,21 @@ from email.mime.text import MIMEText
 # 1. CONFIGURACIÓN DE LA PÁGINA
 st.set_page_config(page_title="WhatsApp Universal", page_icon="✈️", layout="wide")
 
-# 2. INYECCIÓN DE CSS (Diseño visual con el cursor arreglado)
+# 2. INYECCIÓN DE CSS
 st.markdown("""
     <style>
-    /* Ocultar elementos por defecto de Streamlit */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
 
-    /* Color de fondo de toda la aplicación (Gris claro) */
     .stApp {
         background-color: #F4F5F7 !important;
     }
 
-    /* Forzar que todos los textos sean oscuros (Anti Modo Oscuro) */
     .stMarkdown p, .stMarkdown h1, .stMarkdown h2, .stMarkdown h3, .stMarkdown h4, .stMarkdown h5, label {
         color: #1E293B !important;
     }
 
-    /* Forzar que las cajas de texto sean blancas con bordes grises */
     div[data-baseweb="input"] > div, 
     div[data-baseweb="textarea"] > div {
         background-color: #FFFFFF !important;
@@ -35,15 +31,13 @@ st.markdown("""
         border-radius: 8px !important;
     }
     
-    /* Textos y CURSOR oscuros dentro de las cajas */
     div[data-baseweb="input"] input, 
     div[data-baseweb="textarea"] textarea {
         color: #1E293B !important;
         background-color: transparent !important;
-        caret-color: #1E293B !important; /* <--- ESTO HACE APARECER EL CURSOR */
+        caret-color: #1E293B !important; 
     }
 
-    /* Estilo de los botones principales (Verde WhatsApp) */
     div[data-testid="stButton"] > button {
         background-color: #25D366 !important;
         color: white !important;
@@ -59,7 +53,6 @@ st.markdown("""
         box-shadow: 0 4px 6px rgba(37, 211, 102, 0.2);
     }
 
-    /* Estilo para las tarjetas blancas (Cards) */
     [data-testid="stVerticalBlockBorderWrapper"] {
         background-color: #FFFFFF !important;
         border-radius: 12px !important;
@@ -68,7 +61,6 @@ st.markdown("""
         border: none !important;
     }
     
-    /* Títulos */
     h1, h2, h3 {
         color: #1E293B;
     }
@@ -150,8 +142,10 @@ st.write("")
 
 if 'datos' not in st.session_state:
     st.session_state.datos = None
-if 'mensaje_texto' not in st.session_state:
-    st.session_state.mensaje_texto = ""
+
+# LA SOLUCIÓN: Inicializamos la memoria única de la caja de texto
+if 'txt_area' not in st.session_state:
+    st.session_state.txt_area = ""
 
 if st.session_state.datos is None:
     with st.container(border=True):
@@ -197,11 +191,12 @@ else:
         cols_vars = st.columns(len(columnas))
         for i, col in enumerate(columnas):
             if cols_vars[i].button(f"{{{col}}}", key=f"var_{col}"):
-                st.session_state.mensaje_texto += f" {{{col}}}"
+                # Agregamos el texto directamente a la memoria única
+                st.session_state.txt_area += f" {{{col}}}"
                 st.rerun()
         
-        mensaje_base = st.text_area("Escribe tu mensaje aquí...", value=st.session_state.mensaje_texto, height=100, key="txt_area")
-        st.session_state.mensaje_texto = mensaje_base 
+        # La caja de texto ahora solo usa su 'key' para recordar todo
+        mensaje_base = st.text_area("Escribe tu mensaje aquí...", height=100, key="txt_area")
         
         if len(df) > 0:
             primer_fila = df.iloc[0]

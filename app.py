@@ -62,32 +62,6 @@ st.markdown("""
         box-shadow: 0 4px 15px rgba(0,0,0,0.05) !important;
         border: none !important;
     }
-    </style>
-    """, unsafe_allow_html=True)
-
-    /* Estilo de los botones principales (Verde WhatsApp) */
-    div[data-testid="stButton"] > button {
-        background-color: #25D366 !important;
-        color: white !important;
-        border-radius: 8px !important;
-        border: none !important;
-        font-weight: 600 !important;
-        padding: 0.5rem 1rem !important;
-        width: 100%;
-        transition: all 0.3s ease;
-    }
-    div[data-testid="stButton"] > button:hover {
-        background-color: #128C7E !important;
-        box-shadow: 0 4px 6px rgba(37, 211, 102, 0.2);
-    }
-
-    /* Estilo para las tarjetas blancas (Cards) */
-    .css-1r6slb0, .css-12w0qpk {
-        background-color: white;
-        border-radius: 12px;
-        padding: 20px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-    }
     
     /* Títulos */
     h1, h2, h3 {

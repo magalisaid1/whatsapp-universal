@@ -27,6 +27,56 @@ st.markdown("""
         color: #1E293B !important;
     }
 
+    /* Forzar que las cajas de texto (chicas y grandes) sean blancas con bordes grises */
+    div[data-baseweb="input"] > div, 
+    div[data-baseweb="textarea"] > div {
+        background-color: #FFFFFF !important;
+        border: 1px solid #CBD5E1 !important;
+        border-radius: 8px !important;
+    }
+    div[data-baseweb="input"] input, 
+    div[data-baseweb="textarea"] textarea {
+        color: #1E293B !important;
+        background-color: transparent !important;
+    }
+
+    /* Estilo de los botones principales (Verde WhatsApp) */
+    div[data-testid="stButton"] > button {
+        background-color: #25D366 !important;
+        color: white !important;
+        border-radius: 8px !important;
+        border: none !important;
+        font-weight: 600 !important;
+        padding: 0.5rem 1rem !important;
+        width: 100%;
+        transition: all 0.3s ease;
+    }
+    div[data-testid="stButton"] > button:hover {
+        background-color: #128C7E !important;
+        box-shadow: 0 4px 6px rgba(37, 211, 102, 0.2);
+    }
+
+    /* Estilo para las tarjetas blancas (Cards) */
+    [data-testid="stVerticalBlockBorderWrapper"] {
+        background-color: #FFFFFF !important;
+        border-radius: 12px !important;
+        padding: 20px !important;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05) !important;
+        border: none !important;
+    }
+    
+    /* Títulos */
+    h1, h2, h3 {
+        color: #1E293B;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+    /* Forzar que todos los textos sean oscuros (Anti Modo Oscuro) */
+    .stMarkdown p, .stMarkdown h1, .stMarkdown h2, .stMarkdown h3, .stMarkdown h4, .stMarkdown h5, label {
+        color: #1E293B !important;
+    }
+
     /* Forzar que las cajas de texto sean blancas con bordes grises */
     div[data-baseweb="input"] > div {
         background-color: #FFFFFF !important;
